@@ -121,14 +121,14 @@ func backtrack(grid:[Array<Int>], line:Int, column: Int) -> Bool {
         if (tmpLine > 8) {
             
             print("-- find solution -- out of grid --")
-            printGrid(grid)
+            printGrid(grid: grid)
             return true
         }
     }
     
     // move to next position if value already filled
     if grid[tmpLine][tmpColumn] != 0 {
-        return backtrack(grid, line: tmpLine, column: tmpColumn + 1)
+        return backtrack(grid: grid, line: tmpLine, column: tmpColumn + 1)
     }
     
     var gridCopy = grid
@@ -138,14 +138,14 @@ func backtrack(grid:[Array<Int>], line:Int, column: Int) -> Bool {
         gridCopy[tmpLine][tmpColumn] = tmpValue
         
         // check for collision
-        let isInline = isNumberInGridLine(grid, line: tmpLine, valueToSearch: tmpValue)
-        let isIncolumn = isNumberInGridColumn(grid, column: tmpColumn, valueToSearch: tmpValue)
-        let isInSubGrid = isNumberInSubGrid(grid, line: tmpLine, column: tmpColumn, valueToSearch: tmpValue)
+        let isInline = isNumberInGridLine(grid: grid, line: tmpLine, valueToSearch: tmpValue)
+        let isIncolumn = isNumberInGridColumn(grid: grid, column: tmpColumn, valueToSearch: tmpValue)
+        let isInSubGrid = isNumberInSubGrid(grid: grid, line: tmpLine, column: tmpColumn, valueToSearch: tmpValue)
         
         if (!isInline && !isIncolumn && !isInSubGrid) {
             gridCopy[tmpLine][tmpColumn] = tmpValue
             
-            if (backtrack(gridCopy, line: tmpLine, column: tmpColumn + 1)) {
+            if (backtrack(grid: gridCopy, line: tmpLine, column: tmpColumn + 1)) {
                 return true
             }
         }
@@ -159,5 +159,5 @@ func backtrack(grid:[Array<Int>], line:Int, column: Int) -> Bool {
 
 let grid = emptySudoky
 
-printGrid(grid)
-backtrack(grid, line: 0, column: 0)
+printGrid(grid: grid)
+backtrack(grid: grid, line: 0, column: 0)
