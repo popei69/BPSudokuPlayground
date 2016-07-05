@@ -27,20 +27,31 @@ let sudoku_1 = [
     [0, 0, 0, 4, 1, 9, 0, 0, 5],
     [0, 0, 0, 0, 8, 0, 0, 7, 9]]
 
+let sudoku_full = [
+    [5, 3, 4, 6, 7, 8, 9, 1, 2],
+    [6, 7, 2, 1, 9, 5, 3, 4, 8],
+    [1, 9, 8, 3, 4, 2, 5, 6, 7],
+    [8, 5, 9, 7, 6, 1, 4, 2, 3],
+    [4, 2, 6, 8, 5, 3, 7, 9, 1],
+    [7, 1, 3, 9, 2, 4, 8, 5, 6],
+    [9, 6, 1, 5, 3, 7, 2, 8, 4],
+    [2, 8, 7, 4, 1, 9, 6, 3, 5],
+    [3, 4, 5, 2, 8, 6, 1, 7, 9]]
 
-func showGrid(grid: [Array<Int>]) -> Void {
+
+func printGrid(grid: [Array<Int>]) -> Void {
     
     print(" --------------- Start ----------------")
     
-    for row in grid {
+    for line in grid {
         
-        var fullRow = " | "
-        for number in row {
+        var fullLine = " | "
+        for number in line {
             
-            fullRow += " \(number) |"
+            fullLine += " \(number) |"
         }
         
-        print(fullRow)
+        print(fullLine)
         print(" --------------------------------------")
     }
     
@@ -53,13 +64,13 @@ func isNumberInGridColumn(grid:[Array<Int>], column:Int, valueToSearch:Int) -> B
         return false
     }
     
-    for row in grid {
+    for line in grid {
         
-        if row.count == 0 || column >= row.count {
+        if line.count == 0 || column >= line.count {
             return false
         }
         
-        if row[column] == valueToSearch {
+        if line[column] == valueToSearch {
             return true
         }
     }
@@ -68,7 +79,7 @@ func isNumberInGridColumn(grid:[Array<Int>], column:Int, valueToSearch:Int) -> B
 }
 
 func isNumberInGridLine(grid:[Array<Int>], line:Int, valueToSearch:Int) -> Bool {
-
+    
     if grid.count == 0 || line >= grid.count {
         return false
     }
@@ -76,21 +87,77 @@ func isNumberInGridLine(grid:[Array<Int>], line:Int, valueToSearch:Int) -> Bool 
     return grid[line].contains(valueToSearch)
 }
 
-func findEmptyLocation(grid:[Array<Int>]) -> (row: Int, column: Int) {
+func isNumberInSubGrid(grid:[Array<Int>], line:Int, column:Int, valueToSearch:Int) -> Bool {
     
-    for row in 0 ..< grid.count {
+    if grid.count == 0 || line >= grid.count || column >= grid[line].count {
+        return false
+    }
+    
+    let tmpLine = line - (line % 3)
+    let tmpColumn = column - (column % 3)
+    
+    for l in tmpLine..<tmpLine + 3 {
         
-        for column in 0 ..< grid[row].count {
+        for c in tmpColumn..<tmpColumn + 3 {
             
-            if grid[row][column] == 0 {
-                return (row, column)
+            if grid[l][c] == valueToSearch {
+                return true
             }
         }
     }
     
-    return (-1, -1)
+    return false
 }
 
-//showGrid(sudoku_1)
+func backtrack(grid:[Array<Int>], line:Int, column: Int) -> Bool {
+    
+    var tmpColumn = column
+    var tmpLine = line
+    
+    if (tmpColumn > 8) {
+        tmpColumn = 0
+        tmpLine += 1
+        
+        if (tmpLine > 8) {
+            
+            print("-- find solution -- out of grid --")
+            printGrid(grid)
+            return true
+        }
+    }
+    
+    // move to next position if value already filled
+    if grid[tmpLine][tmpColumn] != 0 {
+        return backtrack(grid, line: tmpLine, column: tmpColumn + 1)
+    }
+    
+    var gridCopy = grid
+    
+    for tmpValue in 1..<10 {
+        
+        gridCopy[tmpLine][tmpColumn] = tmpValue
+        
+        // check for collision
+        let isInline = isNumberInGridLine(grid, line: tmpLine, valueToSearch: tmpValue)
+        let isIncolumn = isNumberInGridColumn(grid, column: tmpColumn, valueToSearch: tmpValue)
+        let isInSubGrid = isNumberInSubGrid(grid, line: tmpLine, column: tmpColumn, valueToSearch: tmpValue)
+        
+        if (!isInline && !isIncolumn && !isInSubGrid) {
+            gridCopy[tmpLine][tmpColumn] = tmpValue
+            
+            if (backtrack(gridCopy, line: tmpLine, column: tmpColumn + 1)) {
+                return true
+            }
+        }
+    }
+    
+    print("-- back track from \(tmpLine) \(tmpColumn) -- ")
+    gridCopy[tmpLine][tmpColumn] = 0
+    return false
+    
+}
 
+let grid = emptySudoky
 
+printGrid(grid)
+backtrack(grid, line: 0, column: 0)
